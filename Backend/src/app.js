@@ -2,10 +2,13 @@ let express = require("express");
 let app = express();
 require("dotenv").config();
 const authRoute = require("./routes/auth");
+const profileRoute = require("./routes/profile");
+const cookieParser = require("cookie-parser");
 
 app.use(express.json());
-
+app.use(cookieParser());
 app.use(authRoute);
+app.use(profileRoute);
 app.get("/", (req, res) => {
   res.send("Hello Backend is working!");
 });

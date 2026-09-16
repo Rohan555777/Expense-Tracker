@@ -20,7 +20,7 @@ const loginAuth = async (req, res) => {
     });
   }
   // set token
-  const token = await JWT.sign({}, process.env.JWT_SECRET);
+  const token = await JWT.sign({ email }, process.env.JWT_SECRET);
   res.cookie("token", token).json({
     message: "logged in successfully !",
     user: userExist,
