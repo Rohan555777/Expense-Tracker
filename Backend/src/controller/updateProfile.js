@@ -1,5 +1,5 @@
 const User = require("../model/user");
-
+const validator = require("validator");
 const updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -28,6 +28,11 @@ const updateProfile = async (req, res) => {
       if (existingUser) {
         return res.status(409).json({
           message: "Email is already registered",
+        });
+      }
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({
+          message: "invalid email",
         });
       }
     }
