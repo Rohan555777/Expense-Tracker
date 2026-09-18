@@ -60,7 +60,7 @@ router.post("/transaction", auth, async (req, res) => {
 router.get("/transaction", auth, async (req, res) => {
   const user = req.user;
 
-  let transections = await Transection.find({ _Id: user._Id });
+  let transections = await Transection.find({ userId: user._id });
 
   res.json({
     message: "transection fetched",
@@ -129,6 +129,85 @@ router.delete("/transaction/:id", auth, async (req, res) => {
     res.status(400).json({ message: "invalid transaction" });
   }
   res.json({ message: "transaction deleted !", transaction });
+});
+
+const data = [
+  { month: "Jan", income: 0, expenses: 0 },
+  { month: "Feb", income: 0, expenses: 0 },
+  { month: "Mar", income: 0, expenses: 0 },
+  { month: "Apr", income: 0, expenses: 0 },
+  { month: "May", income: 0, expenses: 0 },
+  { month: "Jun", income: 0, expenses: 0 },
+  { month: "Jul", income: 0, expenses: 0 },
+  { month: "Aug", income: 0, expenses: 0 },
+  { month: "Sep", income: 0, expenses: 0 },
+  { month: "Oct", income: 0, expenses: 0 },
+  { month: "Nov", income: 0, expenses: 0 },
+  { month: "Dec", income: 0, expenses: 0 },
+];
+
+router.get("/transaction/summary", auth, async (req, res) => {
+  let userId = req.user?._id;
+
+  // get all transections
+  let transactions = await Transection.find({ userId });
+
+  // arange in order
+  let totalExpense = 0;
+  let totalIncome = 0;
+
+  const monthlyMap = data;
+  const categoryMap = {};
+
+  for (let trans of transactions) {
+    // total expense and income
+    if (trans.type === "expense") totalExpense += trans.amount;
+    if (trans.type === "income") totalIncome += trans.amount;
+
+    // Calculate monthly data
+    const month = new Date(trans.date)
+      .toLocaleString("en-IN", {
+        month: "short",
+      })
+      .split("")
+      .slice(0, 3)
+      .join("");
+    const monthData = data.find((item) => item.month === "Sep");
+
+    if (trans.type === "expense") {
+      monthData.expenses += trans.amount;
+    } else {
+      monthData.income += trans.amount;
+    }
+
+    //categroy map
+
+    if (trans.type === "expense") {
+      const category = trans.category;
+
+      if (!categoryMap[category]) {
+        categoryMap[category] = 0;
+      }
+
+      categoryMap[category] += trans.amount;
+    }
+  }
+
+  const categoryData = Object.entries(categoryMap).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  res.json({
+    message: "Summary fetched successfully!",
+    summary: {
+      totalIncome,
+      totalExpense,
+      balance: totalIncome - totalExpense,
+      monthlyData: monthlyMap,
+      categoryData,
+    },
+  });
 });
 
 module.exports = router;
