@@ -6,7 +6,7 @@ import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 
 const App = () => {
-  let router = createBrowserRouter([
+  const router = createBrowserRouter([
     {
       path: "login",
       element: <Login base="login" />,
@@ -35,7 +35,7 @@ const App = () => {
     },
   ]);
   return (
-    <div className="">
+    <div className="jetbrain-font">
       <RouterProvider router={router} />
     </div>
   );
